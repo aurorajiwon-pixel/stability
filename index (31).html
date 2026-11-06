@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎈 공기 덩어리 띄우기</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jua','Malgun Gothic','Apple SD Gothic Neo',sans-serif;color:#3f3d56;background:linear-gradient(180deg,#bfe9ff 0%,#e9f7ff 45%,#fff4dc 100%);min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+.screen{display:none}.screen.on{display:block}
+.read{font-family:'Gowun Dodum','Malgun Gothic',sans-serif;line-height:1.7}
+#start{min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:30px 16px}
+#start.on{display:flex}
+.title{font-size:44px;color:#2563eb;text-shadow:3px 3px 0 #fff,6px 6px 0 #bae6fd;margin:10px 0}
+.sub{font-size:21px;color:#64748b;margin-bottom:22px}
+.card{background:#fff;border-radius:26px;box-shadow:0 8px 0 #cbe7f7,0 14px 28px rgba(56,189,248,.15);padding:22px}
+.inp{font-size:19px;padding:10px 14px;border:3px solid #bae6fd;border-radius:14px;width:100%;outline:none;background:#fff;color:#3f3d56}
+.inp:focus{border-color:#38bdf8}
+textarea.inp{min-height:84px;resize:vertical;font-family:'Gowun Dodum',sans-serif;font-size:17px;line-height:1.6}
+.inp:disabled,.inl:disabled,select:disabled{background:#f8fafc;color:#475569;border-color:#e2e8f0}
+select.inp,select.inl{cursor:pointer}
+.big{font-size:21px;padding:12px 28px;border:none;border-radius:18px;color:#fff;background:#fb7185;box-shadow:0 5px 0 #e11d48;transition:.1s}
+.big:active{transform:translateY(3px);box-shadow:0 2px 0 #e11d48}
+.big.blue{background:#38bdf8;box-shadow:0 5px 0 #0284c7}
+.big.green{background:#34d399;box-shadow:0 5px 0 #059669}
+.big.gray{background:#94a3b8;box-shadow:0 5px 0 #64748b}
+.big.sm{font-size:17px;padding:8px 18px}
+.big:disabled{background:#cbd5e1;box-shadow:0 5px 0 #94a3b8;cursor:default}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lab{font-size:17px;text-align:left;margin:10px 0 4px;display:block;line-height:1.6}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:10px;flex-wrap:wrap;max-width:1200px;margin:auto}
+.pill{background:#fff;border-radius:999px;padding:7px 16px;font-size:18px;box-shadow:0 4px 0 #cbe7f7}
+.save{font-size:15px;color:#64748b}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:4px 16px 16px;max-width:1200px;margin:auto}
+.tab{border:none;background:#fff;border-radius:18px;padding:10px 16px;font-size:18px;color:#3f3d56;box-shadow:0 5px 0 #cbe7f7;display:flex;align-items:center;gap:6px}
+.tab .n{background:#fb7185;color:#fff;border-radius:50%;width:28px;height:28px;line-height:28px;font-size:16px;text-align:center}
+.tab.on{background:#38bdf8;color:#fff;box-shadow:0 5px 0 #0284c7}
+.tab.on .n{background:#fff;color:#0284c7}
+.tab.lock{filter:grayscale(1);opacity:.5;cursor:not-allowed}
+.wrap{max-width:1200px;margin:auto;padding:0 18px 120px}
+.stage{display:none}.stage.on{display:block}
+h2{font-size:30px;color:#1d4ed8;margin:4px 0 12px}
+h3{font-size:22px;color:#0f172a;margin:2px 0 8px}
+.box{margin-bottom:18px}
+.goal{background:#fef3c7;border-radius:18px;padding:12px 16px;font-size:18px;line-height:1.55;border:3px dashed #fbbf24;margin-bottom:16px}
+.recall{background:#ecfeff;border-radius:16px;padding:10px 14px;font-size:16px;border:2px solid #a5f3fc;margin-bottom:12px}
+.two{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px}
+@media(max-width:900px){.two{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+canvas{width:100%;display:block;border-radius:18px;touch-action:none}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:10px;background:linear-gradient(90deg,#fde68a,#bae6fd);outline:none;margin:10px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;border-radius:50%;background:#fff;border:5px solid #fb7185;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:5px solid #fb7185;cursor:pointer}
+.ro{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:6px}
+.ro div{background:#f0f9ff;border-radius:14px;padding:8px 10px;text-align:center}
+.ro b{display:block;font-size:22px;color:#0f172a;font-weight:normal}
+.ro span{font-size:14px;color:#64748b}
+.ro .hi{background:#e0e7ff}.ro .warm{background:#ffedd5}.ro .cool{background:#dbeafe}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.cond{border:3px solid #bae6fd;background:#fff;border-radius:14px;padding:6px 12px;font-size:16px;color:#3f3d56}
+.cond.on{background:#38bdf8;border-color:#38bdf8;color:#fff}
+.cond:disabled{opacity:.5;cursor:default}
+table.t{border-collapse:separate;border-spacing:0;width:100%;font-size:17px}
+table.t th{background:#e0f2fe;padding:8px;font-weight:normal}
+table.t th:first-child{border-radius:12px 0 0 0}table.t th:last-child{border-radius:0 12px 0 0}
+table.t td{padding:4px;border-bottom:1px solid #e2e8f0;text-align:center}
+table.t input,table.t select{width:100%;max-width:120px;font-size:17px;padding:5px 6px;border:2px solid #bae6fd;border-radius:10px;text-align:center;background:#fff}
+td.ok input,td.ok select,.inl.ok,.inp.ok{border-color:#34d399!important;background:#f0fdf4!important}
+td.no input,td.no select,.inl.no,.inp.no{border-color:#fb7185!important;background:#fff1f2!important}
+.q{margin:12px 0}
+.inl{display:inline-block;width:110px;font-size:18px;padding:5px 8px;border:3px solid #bae6fd;border-radius:12px;text-align:center;margin:0 4px;background:#fff;color:#3f3d56}
+select.inl{width:auto;min-width:110px}
+.fb{font-size:16px;margin-top:4px;min-height:0;display:block}
+.fb.ok{color:#059669}.fb.no{color:#e11d48}
+.lockrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+.lockmsg{font-size:16px;color:#64748b}
+.concept{border-left:8px solid #38bdf8;background:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 6px 0 #cbe7f7;margin-bottom:16px}
+.concept.y{border-color:#fbbf24}.concept.p{border-color:#a78bfa}.concept.g{border-color:#34d399}.concept.r{border-color:#fb7185}
+.concept .tag{display:inline-block;background:#e0f2fe;border-radius:999px;padding:2px 12px;font-size:15px;margin-bottom:6px}
+.concept p{font-size:17px;margin:6px 0}
+.formula{font-size:28px;text-align:center;color:#1d4ed8;background:#eff6ff;border-radius:16px;padding:14px;margin:10px 0}
+.waiting{text-align:center;padding:60px 20px;font-size:24px;color:#64748b}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.tool{border:3px solid #e2e8f0;background:#fff;border-radius:14px;padding:6px 12px;font-size:16px;color:#3f3d56;display:flex;align-items:center;gap:6px}
+.tool .sw{width:22px;height:5px;border-radius:3px;display:inline-block}
+.tool.on{border-color:#0f172a;background:#f8fafc}
+.tool:disabled{opacity:.45;cursor:default}
+.tasks{list-style:none;margin:6px 0}
+.tasks li{background:#f8fafc;border-radius:14px;padding:8px 12px;margin:6px 0;font-size:17px;display:flex;gap:10px;align-items:flex-start}
+.tasks li .st{font-size:20px;line-height:1.2}
+.tasks li.done{background:#f0fdf4}
+.tasks li.cur{outline:3px solid #fde68a}
+.tasks li .hint{display:block;font-size:15px;color:#e11d48;font-family:'Gowun Dodum',sans-serif}
+.hint-ok{display:block;font-size:15px;color:#059669}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:15px;color:#475569;margin:4px 2px}
+.legend i{display:inline-block;width:18px;height:5px;border-radius:3px;vertical-align:middle;margin-right:4px}
+.photo{width:100%;border-radius:18px;display:block;max-height:380px;object-fit:cover}
+.nophoto{border-radius:18px;background:repeating-linear-gradient(45deg,#e0f2fe,#e0f2fe 14px,#f0f9ff 14px,#f0f9ff 28px);height:240px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#0369a1;text-align:center;padding:20px}
+#qbtn{position:fixed;right:18px;bottom:18px;z-index:20;border:none;background:#fbbf24;color:#3f3d56;border-radius:999px;padding:14px 22px;font-size:21px;box-shadow:0 6px 0 #d97706}
+#qbtn .c{background:#fff;border-radius:999px;padding:0 9px;margin-left:6px;font-size:17px}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:30;padding:16px}
+.modal.on{display:flex}
+.modal .card{width:min(620px,100%);max-height:90vh;overflow:auto}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.chip{border:3px solid #fde68a;background:#fff;border-radius:999px;padding:5px 14px;font-size:16px;color:#3f3d56}
+.chip.on{background:#fbbf24;border-color:#fbbf24}
+.qitem{background:#fffbeb;border-radius:14px;padding:8px 12px;margin:6px 0;font-family:'Gowun Dodum',sans-serif;font-size:16px}
+.qitem small{font-family:'Jua',sans-serif;color:#92400e;margin-right:6px}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 18px;border-radius:999px;font-size:17px;z-index:40;display:none}
+.reset{border:none;background:none;color:#94a3b8;font-size:14px;text-decoration:underline}
+.resume{background:#f0f9ff;border-radius:18px;padding:16px;margin-bottom:14px}
+.resume b{color:#1d4ed8}
+.tiny{font-size:13px;color:#94a3b8}
+
+</style>
+</head>
+<body>
+
+<section id="start" class="screen on">
+  <div style="font-size:68px">🎈</div>
+  <h1 class="title">공기 덩어리 띄우기</h1>
+  <p class="sub">공기 덩어리를 들어 올렸다 놓아 봐요</p>
+  <div class="card" style="width:min(460px,100%)">
+    <div id="resumeBox" class="resume" style="display:none">
+      <p style="font-size:19px;margin-bottom:10px"><b id="resumeWho"></b>(으)로 이어서 할까요?</p>
+      <div class="lockrow" style="justify-content:center;margin-top:0"><button id="resumeYes" class="big sm blue">네, 이어서 할게요</button><button id="resumeNo" class="big sm gray">아니요, 다른 사람이에요</button></div>
+    </div>
+    <div id="newBox">
+      <div class="grid2">
+        <div><label class="lab">반</label><select id="inCls" class="inp"></select></div>
+        <div><label class="lab">번호</label><input id="inNum" class="inp" type="number" min="1" max="40" inputmode="numeric"></div>
+      </div>
+      <label class="lab">이름</label><input id="inName" class="inp" maxlength="10">
+      <label class="lab">모둠</label>
+      <div class="chips" id="grpChips"></div>
+      <div style="margin-top:18px"><button id="goBtn" class="big blue">시작하기</button></div>
+    </div>
+    <p id="startMsg" class="fb no"></p>
+  </div>
+</section>
+
+<section id="main" class="screen">
+  <div class="top">
+    <span class="pill" id="who"></span>
+    <span class="save" id="saveState"></span>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="wrap">
+    <!-- 1단계 -->
+    <div class="stage" data-st="1">
+      <h2>① 공기 덩어리 들어 올리기</h2>
+      <div class="two">
+        <div class="card box">
+          <div class="grid2">
+            <div><div id="ph1a"></div><p class="read" style="text-align:center;font-size:16px;margin-top:6px">사진 1 · 넓게 깔린 구름</p></div>
+            <div><div id="ph1b"></div><p class="read" style="text-align:center;font-size:16px;margin-top:6px">사진 2 · 높이 솟은 구름</p></div>
+          </div>
+          <p class="read" style="font-size:17px;margin-top:10px">어떤 날은 구름이 옆으로 넓게 깔리고, 어떤 날은 구름이 하늘 높이 솟아올라요. 공기가 위로 잘 올라가는 날과 그렇지 않은 날이 있는 걸까요?</p>
+        </div>
+        <div class="card box" data-lock="g1">
+          <h3>예상해 보기</h3>
+          <p class="read" style="font-size:17px">땅 가까이의 공기 덩어리를 누군가 살짝 위로 들어 올렸다가 놓았어요.</p>
+          <div class="q">공기 덩어리는 <select class="inl" data-k="s1.pred" data-req data-label="예상"><option value="">고르기</option><option>다시 내려온다</option><option>그 자리에 머문다</option><option>계속 올라간다</option></select></div>
+          <label class="lab">그렇게 생각한 까닭은?</label>
+          <textarea class="inp" data-k="s1.why" data-req data-label="예상한 까닭" data-sample="공기는 무게가 있으니까 다시 내려올 것 같다."></textarea>
+          <label class="lab">궁금한 것을 질문 하나로 만들어 봐요.</label>
+          <input class="inp" data-k="s1.q" data-q data-req data-label="내 질문" placeholder="왜 …할까? / 만약 …라면?" data-sample="날마다 결과가 달라질까?">
+          <div class="lockrow"><button class="big sm" data-lockbtn="g1">저장하고 잠그기 🔒</button><span class="lockmsg">수업 끝에 다시 볼 거예요.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2단계 -->
+    <div class="stage" data-st="2">
+      <h2>② 공기 덩어리 띄워 보기</h2>
+      <div class="goal">지표 기온이 20 °C인 날, 주변 공기의 기온 분포가 네 가지예요. 공기 덩어리를 <b>500 m</b>까지 들어 올렸다가 손을 놓아 봐요. 불포화 공기 덩어리와 포화 공기 덩어리 모두 해 봐요.</div>
+      <div class="two">
+        <div class="card box">
+          <div class="lab" style="margin-top:0">주변 공기</div>
+          <div class="chiprow" id="cases"></div>
+          <div class="lab" style="margin-top:4px">공기 덩어리</div>
+          <div class="chiprow" id="ptype"></div>
+          <canvas id="f2" width="600" height="440"></canvas>
+          <input type="range" id="r2" min="0" max="1000" step="50" value="0">
+          <div class="lockrow" style="margin-top:4px"><button class="big sm" id="drop2">✋ 손 놓기</button><button class="big sm gray" id="back2">↺ 지표로</button><span class="lockmsg" id="tried2"></span></div>
+          <div class="ro" id="ro2"></div>
+        </div>
+        <div class="card box">
+          <canvas id="dd2" width="560" height="460"></canvas>
+          <div class="legend"><span><i style="background:#10b981"></i>주변 공기 기온</span><span><i style="background:#ef4444"></i>불포화 공기 덩어리</span><span><i style="background:#f59e0b"></i>포화 공기 덩어리</span></div>
+          <p class="read" style="font-size:15px;color:#64748b;margin-top:6px">단열선도에서 공기 덩어리 선이 주변 공기 선보다 <b>오른쪽</b>에 있으면 주변보다 따뜻하다는 뜻이에요.</p>
+        </div>
+      </div>
+      <div class="card box" data-lock="g2">
+        <h3>띄워 본 결과</h3>
+        <div class="q">500 m에서 공기 덩어리의 기온: 불포화 <input class="inl" data-k="s2.pd" data-ans="15" data-req data-label="500 m 불포화 기온" data-msg="1 °C/100 m로 500 m" inputmode="decimal"> °C, &nbsp;포화 <input class="inl" data-k="s2.pm" data-ans="17.5" data-req data-label="500 m 포화 기온" data-msg="0.5 °C/100 m로 500 m" inputmode="decimal"> °C</div>
+        <table class="t">
+          <tr><th>주변 공기</th><th>주변 기온 감률<br>(°C/100 m)</th><th>500 m 주변 기온(°C)</th><th>불포화 공기 덩어리</th><th>포화 공기 덩어리</th></tr>
+          <tr><td>㉠</td><td>0.4</td><td><input data-k="s2.a.e" data-ans="18" data-req data-label="㉠ 주변 기온"></td><td><select data-k="s2.a.d" data-ans="돌아온다" data-req data-label="㉠ 불포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td><td><select data-k="s2.a.m" data-ans="돌아온다" data-req data-label="㉠ 포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td></tr>
+          <tr><td>㉡</td><td>1.2</td><td><input data-k="s2.b.e" data-ans="14" data-req data-label="㉡ 주변 기온"></td><td><select data-k="s2.b.d" data-ans="계속 올라간다" data-req data-label="㉡ 불포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td><td><select data-k="s2.b.m" data-ans="계속 올라간다" data-req data-label="㉡ 포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td></tr>
+          <tr><td>㉢</td><td>0.7</td><td><input data-k="s2.c.e" data-ans="16.5" data-req data-label="㉢ 주변 기온"></td><td><select data-k="s2.c.d" data-ans="돌아온다" data-req data-label="㉢ 불포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td><td><select data-k="s2.c.m" data-ans="계속 올라간다" data-req data-label="㉢ 포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td></tr>
+          <tr><td>㉣</td><td>−0.5<br><span style="font-size:13px;color:#64748b">(위로 갈수록 따뜻)</span></td><td><input data-k="s2.d.e" data-ans="22.5" data-req data-label="㉣ 주변 기온"></td><td><select data-k="s2.d.d" data-ans="돌아온다" data-req data-label="㉣ 불포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td><td><select data-k="s2.d.m" data-ans="돌아온다" data-req data-label="㉣ 포화"><option value="">고르기</option><option>돌아온다</option><option>계속 올라간다</option></select></td></tr>
+        </table>
+        <div class="q"><label class="lab">공기 덩어리가 계속 올라간 경우와 돌아온 경우, 무엇이 달랐나요?</label><textarea class="inp" data-k="s2.diff" data-req data-label="올라간 경우 vs 돌아온 경우" data-sample="공기 덩어리가 주변보다 따뜻하면 올라가고, 차가우면 돌아왔다."></textarea></div>
+        <div class="lockrow"><button class="big sm" data-lockbtn="g2">저장하고 잠그기 🔒</button><span class="lockmsg">여덟 가지를 모두 띄워 봐야 잠글 수 있어요.</span></div>
+      </div>
+    </div>
+
+    <!-- 3단계 -->
+    <div class="stage" data-st="3">
+      <h2>③ 규칙 찾기</h2>
+      <div class="goal">②의 결과를 세 무리로 나누고, 주변 기온 감률을 공기 덩어리의 감률(1 °C/100 m, 0.5 °C/100 m)과 비교해 봐요.</div>
+      <div class="card box" data-lock="g3">
+        <div class="q">ⓐ 불포화, 포화 <b>모두 돌아온</b> 경우(㉠, ㉣): 주변 기온 감률 &lt; <input class="inl" data-k="s3.a" data-ans="0.5" data-req data-label="모두 돌아옴: 기준" data-msg="㉠ 0.4, ㉣ −0.5는 어느 감률보다 작나요?" inputmode="decimal"> °C/100 m</div>
+        <div class="q">ⓑ 불포화, 포화 <b>모두 계속 올라간</b> 경우(㉡): 주변 기온 감률 &gt; <input class="inl" data-k="s3.b" data-ans="1" data-req data-label="모두 올라감: 기준" data-msg="㉡ 1.2는 어느 감률보다 크나요?" inputmode="decimal"> °C/100 m</div>
+        <div class="q">ⓒ <b>불포화는 돌아오고 포화는 올라간</b> 경우(㉢): <input class="inl" data-k="s3.c1" data-ans="0.5" data-req data-label="조건부: 아래 기준" inputmode="decimal"> &lt; 주변 기온 감률 &lt; <input class="inl" data-k="s3.c2" data-ans="1" data-req data-label="조건부: 위 기준" inputmode="decimal"> °C/100 m</div>
+        <div class="q"><label class="lab">ⓓ 세 무리에 어울리는 이름을 지어 봐요.</label><input class="inp" data-k="s3.name" data-label="우리가 지은 이름" data-sample="잘 가라앉는 공기 / 잘 솟는 공기 / 상황 따라 다른 공기"></div>
+        <div class="q"><label class="lab">ⓔ 공기 덩어리가 계속 올라가는 조건을 한 문장으로 써 봐요.</label><textarea class="inp" data-k="s3.rule" data-req data-label="올라가는 조건" data-sample="같은 높이에서 공기 덩어리가 주변 공기보다 따뜻하면 계속 올라간다."></textarea></div>
+        <div class="lockrow"><button class="big sm" data-lockbtn="g3">저장하고 잠그기 🔒</button><span class="lockmsg">잠그면 개념이 열려요.</span></div>
+      </div>
+      <div data-after="g3">
+        <div class="concept g">
+          <span class="tag">개념</span>
+          <h3>대기 안정도</h3>
+          <p class="read">공기 덩어리를 위나 아래로 조금 움직였을 때 <b>원래 자리로 돌아오려는</b> 대기는 안정, <b>원래 자리에서 더 멀어지려는</b> 대기는 불안정해요.</p>
+          <div class="grid2" style="margin-top:8px">
+            <div style="text-align:center"><svg viewBox="0 0 200 110" width="200"><path d="M10 20 Q100 140 190 20" fill="none" stroke="#16a34a" stroke-width="6"/><circle cx="100" cy="66" r="14" fill="#ef4444"/><text x="100" y="105" text-anchor="middle" font-size="15" font-family="Jua">안정: 골짜기의 공</text></svg></div>
+            <div style="text-align:center"><svg viewBox="0 0 200 110" width="200"><path d="M10 90 Q100 -30 190 90" fill="none" stroke="#16a34a" stroke-width="6"/><circle cx="100" cy="16" r="14" fill="#ef4444"/><text x="100" y="105" text-anchor="middle" font-size="15" font-family="Jua">불안정: 언덕 위의 공</text></svg></div>
+          </div>
+          <table class="t" style="margin-top:8px;font-size:16px">
+            <tr><th>이름</th><th>주변 기온 감률</th><th>공기 덩어리</th></tr>
+            <tr><td><b>절대 안정</b></td><td>습윤 단열 감률보다 작다 (&lt; 0.5)</td><td>포화·불포화 모두 원래 자리로</td></tr>
+            <tr><td><b>절대 불안정</b></td><td>건조 단열 감률보다 크다 (&gt; 1)</td><td>포화·불포화 모두 더 멀어짐</td></tr>
+            <tr><td><b>조건부 불안정</b></td><td>둘 사이 (0.5 ~ 1)</td><td>불포화면 안정, 포화면 불안정</td></tr>
+          </table>
+          <p class="read" style="margin-top:8px"><b>역전층</b>: 높이 올라갈수록 기온이 오히려 높아지는 층(㉣)이에요. 절대 안정한 대기라서 공기가 위아래로 잘 섞이지 않아요.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4단계 -->
+    <div class="stage" data-st="4">
+      <h2>④ 단열선도로 판단하기</h2>
+      <div class="goal">어느 날 측정한 높이별 기온(연습 자료)이에요. 단열선도에 주변 기온을 찍고, 공기 덩어리의 단열선과 비교해서 대기 안정도를 판단해 봐요.</div>
+      <div class="two">
+        <div class="card box">
+          <div class="chiprow" id="snd"></div>
+          <table class="t" id="sndtbl" style="margin-bottom:8px"></table>
+          <div class="tools" id="tools4"></div>
+          <canvas id="d4" width="600" height="540"></canvas>
+          <div class="legend"><span><i style="background:#10b981"></i>주변 기온</span><span><i style="background:#ef4444"></i>건조 단열선</span><span><i style="background:#f59e0b"></i>습윤 단열선</span><span>자료 2·3의 점선: 지표 기온에서 시작하는 단열선</span></div>
+          <p class="tiny" style="margin-top:6px">주변 기온: 높이마다 한 번씩 눌러 점을 찍어요. 단열선: 시작점과 끝점을 차례로 눌러요.</p>
+        </div>
+        <div class="card box" data-lock="g4">
+          <h3>할 일</h3>
+          <ul class="tasks" id="tasks4"></ul>
+          <h3 style="margin-top:12px">판단하기</h3>
+          <div class="q">자료 1의 대기는 <select class="inl" data-k="s4.j1" data-ans="절대 안정" data-req data-label="자료 1 판단"><option value="">고르기</option><option>절대 안정</option><option>절대 불안정</option><option>조건부 불안정</option></select></div>
+          <div class="q">자료 2의 대기는 <select class="inl" data-k="s4.j2" data-ans="절대 불안정" data-req data-label="자료 2 판단"><option value="">고르기</option><option>절대 안정</option><option>절대 불안정</option><option>조건부 불안정</option></select></div>
+          <div class="q">자료 3의 대기는 <select class="inl" data-k="s4.j3" data-ans="조건부 불안정" data-req data-label="자료 3 판단"><option value="">고르기</option><option>절대 안정</option><option>절대 불안정</option><option>조건부 불안정</option></select></div>
+          <div class="q"><label class="lab">단열선도에서 무엇을 보고 판단했나요?</label><textarea class="inp" data-k="s4.how" data-req data-label="판단한 방법" data-sample="주변 기온선이 건조 단열선보다 더 많이 기울면 불안정, 습윤 단열선보다 덜 기울면 안정이다."></textarea></div>
+          <div class="lockrow"><button class="big sm" data-lockbtn="g4">저장하고 잠그기 🔒</button><span class="lockmsg">할 일을 모두 마치면 잠글 수 있어요.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5단계 -->
+    <div class="stage" data-st="5">
+      <h2>⑤ 대기 안정도와 구름</h2>
+      <div class="two">
+        <div>
+          <div class="concept">
+            <span class="tag">절대 안정한 대기</span>
+            <p class="read">공기가 위로 잘 올라가지 않아요. 억지로 올라가면 옆으로 넓게 퍼지는 <b>층운형 구름</b>이 생기고, 비가 내려도 약하게 내려요.</p>
+          </div>
+          <div class="concept r">
+            <span class="tag">절대 불안정한 대기</span>
+            <p class="read">공기가 위로 활발하게 솟아올라요. 위로 높이 자라는 <b>적운형 구름</b>이 생기고, 소나기가 내리기도 해요.</p>
+          </div>
+          <div class="concept y">
+            <span class="tag">조건부 불안정한 대기</span>
+            <p class="read">공기 덩어리가 산을 타거나 해서 상승 응결 고도 위까지 억지로 올라가 포화되면, 그때부터는 스스로 올라가서 <b>적운형 구름</b>이 생겨요.</p>
+          </div>
+        </div>
+        <div class="card box" data-lock="g5">
+          <h3>하늘을 다시 보기</h3>
+          <div class="grid2">
+            <div><div id="ph5a"></div><p class="read" style="text-align:center;font-size:15px">사진 1</p></div>
+            <div><div id="ph5b"></div><p class="read" style="text-align:center;font-size:15px">사진 2</p></div>
+          </div>
+          <div class="q">ⓐ 사진 1의 대기는 <select class="inl" data-k="s5.p1" data-ans="안정" data-req data-label="사진 1"><option value="">고르기</option><option>안정</option><option>불안정</option></select> 하다.</div>
+          <div class="q">ⓑ 사진 2의 대기는 <select class="inl" data-k="s5.p2" data-ans="불안정" data-req data-label="사진 2"><option value="">고르기</option><option>안정</option><option>불안정</option></select> 하다.</div>
+          <div class="q"><label class="lab">ⓒ 겨울 아침에 미세먼지가 땅 가까이에 오래 머무는 까닭을 대기 안정도로 설명해 봐요.</label><textarea class="inp" data-k="s5.dust" data-req data-label="미세먼지가 머무는 까닭" data-sample="밤에 땅이 식어 역전층이 생기면 대기가 안정해서 공기가 위로 올라가지 않아 먼지가 흩어지지 않는다."></textarea></div>
+          <div class="q">ⓓ 조건부 불안정한 날, 바람이 산을 타고 올라가 공기 덩어리가 상승 응결 고도 위까지 올라가면 <select class="inl" data-k="s5.cu" data-ans="적운형" data-req data-label="강제 상승 후 구름"><option value="">고르기</option><option>층운형</option><option>적운형</option></select> 구름이 생긴다.</div>
+          <div class="lockrow"><button class="big sm" data-lockbtn="g5">저장하고 잠그기 🔒</button></div>
+        </div>
+      </div>
+      <div class="card box" data-lock="g6">
+        <h3>처음 생각과 지금 생각</h3>
+        <label class="lab">처음 내 예상</label>
+        <div class="qitem" id="first2"></div>
+        <label class="lab">들어 올렸다 놓은 공기 덩어리가 어떻게 될지, 지금 다시 설명해 봐요.</label>
+        <textarea class="inp" data-k="s6.now" data-req data-label="지금 생각" data-sample="주변 공기의 기온 감률에 따라 다르다. 공기 덩어리가 주변보다 차가우면 돌아오고, 따뜻하면 계속 올라간다."></textarea>
+        <label class="lab">내 생각은 어떻게 바뀌었나요? 무엇 때문에 바뀌었나요?</label>
+        <textarea class="inp" data-k="s6.chg" data-label="달라진 점" data-sample="처음엔 항상 내려온다고 생각했는데, 주변 공기에 따라 계속 올라갈 수도 있다는 걸 알았다."></textarea>
+        <div class="lockrow"><button class="big sm green" data-lockbtn="g6">저장하고 잠그기 🔒</button></div>
+      </div>
+    </div>
+
+    <div class="waiting" id="waitMsg" style="display:none">🔒 아직 열리지 않았어요</div>
+    <div style="text-align:center;margin-top:30px"><button class="reset" id="resetBtn">이 기기에서 처음부터 다시 시작하기</button></div>
+  </div>
+</section>
+
+<button id="qbtn" style="display:none">❓ 질문 만들기<span class="c" id="qcount">0</span></button>
+<div class="modal" id="qmodal">
+  <div class="card">
+    <h3>궁금한 것을 질문으로 남겨요</h3>
+    <div class="chips" id="qtags"></div>
+    <textarea class="inp" id="qtext" placeholder="궁금한 것을 질문으로 써 봐요"></textarea>
+    <div class="lockrow"><button class="big sm" id="qsave">질문 보내기</button><button class="big sm blue" id="qclose">닫기</button></div>
+    <h3 style="margin-top:16px">내가 만든 질문</h3>
+    <div id="qlist"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCmdo6XSf8Hu62aPZezynd9WoEMsj5mc5M",
+  authDomain: "cloud-9e6ad.firebaseapp.com",
+  projectId: "cloud-9e6ad"
+};
+const CFG = {"col": "stab1", "ctrl": "stab1_ctrl", "names": ["들어 올리기", "띄워 보기", "규칙 찾기", "단열선도로 판단하기", "구름과 날씨"], "groups": ["g1", "g2", "g3", "g4", "g5", "g6"]};
+/* ===== 공통 틀 ===== */
+const FS = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
+const SKEY = CFG.col + '_student_' + firebaseConfig.projectId;
+const NSTAGE = CFG.names.length;
+const TAGS = ['왜?', '만약 ~라면?', '어떻게?', '얼마나?', '기타'];
+function blankState(){ return { v: {}, locks: {}, draw: {}, segs: {}, qs: [] }; }
+let S = blankState();
+let ME = null, AUTH = null, STAGE = 1, VIEW = 1, REVEAL = false;
+const LESSON = { init(){}, onShow(){}, onLock(){}, lockCheck: {}, afterApply(){} };
+
+/* ----- 도구 ----- */
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function num(v){ if (v === undefined || v === null) return NaN; const s = String(v).trim().replace(/\s/g, '').replace('−', '-'); if (s === '') return NaN; return Number(s); }
+function near(v, t, tol){ const n = num(v); return !isNaN(n) && Math.abs(n - t) <= tol; }
+function fmt(x){ const r = Math.round(x * 10) / 10; return (Object.is(r, -0) ? 0 : r).toFixed(1); }
+function es(t){ return 6.112 * Math.exp(17.67 * t / (t + 243.5)); }
+function rh(T, Td){ return Math.min(100, 100 * es(Td) / es(T)); }
+function toast(t){ const el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(() => el.style.display = 'none', 2400); }
+function V(k){ return S.v[k] == null ? '' : S.v[k]; }
+function setV(k, val){ S.v[k] = val; queueSave(); }
+function store(){ try { localStorage.setItem(SKEY, JSON.stringify({ AUTH, ME })); } catch (e) {} }
+function load(){ try { return JSON.parse(localStorage.getItem(SKEY) || 'null'); } catch (e) { return null; } }
+
+/*BACKEND*/
+async function signUpAnon(){
+  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseConfig.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error && j.error.message || 'auth');
+  AUTH = { idToken: j.idToken, refreshToken: j.refreshToken, uid: j.localId, exp: Date.now() + (Number(j.expiresIn) - 120) * 1000 };
+}
+async function token(){
+  if (AUTH && Date.now() < AUTH.exp) return AUTH.idToken;
+  const r = await fetch(`https://securetoken.googleapis.com/v1/token?key=${firebaseConfig.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(AUTH.refreshToken) });
+  const j = await r.json();
+  if (!r.ok) throw new Error('refresh');
+  AUTH = { idToken: j.id_token, refreshToken: j.refresh_token, uid: j.user_id, exp: Date.now() + (Number(j.expires_in) - 120) * 1000 };
+  store();
+  return AUTH.idToken;
+}
+async function fsGet(path){
+  const t = await token();
+  const r = await fetch(`${FS}/${path}`, { headers: { Authorization: 'Bearer ' + t } });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('get ' + r.status);
+  return r.json();
+}
+async function fsPatch(path, fields){
+  const t = await token();
+  const r = await fetch(`${FS}/${path}`, { method: 'PATCH', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
+  if (!r.ok) throw new Error('patch ' + r.status);
+  return r.json();
+}
+/*END BACKEND*/
+
+function doneLevel(){ let m = 1; CFG.groups.forEach(g => { if (S.locks[g]) m++; }); return m; }
+let saveTimer = null, saving = false, dirty = false;
+function setSave(t){ const el = $('saveState'); if (el) el.textContent = t; }
+function queueSave(){ dirty = true; setSave('저장 중…'); clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 900); }
+async function saveNow(){
+  if (!AUTH || !ME) return;
+  if (saving) { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 600); return; }
+  saving = true; dirty = false;
+  try {
+    await fsPatch(`${CFG.col}/${AUTH.uid}`, {
+      name: { stringValue: ME.name }, cls: { stringValue: String(ME.cls) }, num: { integerValue: String(ME.num) },
+      group: { stringValue: String(ME.group) }, done: { integerValue: String(doneLevel()) },
+      data: { stringValue: JSON.stringify(S) }, updated: { integerValue: String(Date.now()) }
+    });
+    setSave(dirty ? '저장 중…' : SAVED_TEXT);
+  } catch (e) { setSave('저장 실패 · 다시 시도할게요'); dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 4000); }
+  saving = false;
+}
+const SAVED_TEXT = '저장됨 ✓';
+async function pollCtrl(){
+  try {
+    const d = await fsGet(`${CFG.ctrl}/state`);
+    const s = d && d.fields && d.fields.stage ? Number(d.fields.stage.integerValue) : 1;
+    const rv = !!(d && d.fields && d.fields.reveal && d.fields.reveal.booleanValue);
+    if (rv !== REVEAL) { REVEAL = rv; applyLocks(); }
+    if (s !== STAGE) { const up = s > STAGE; STAGE = s; renderTabs(); if (up) { toast(`${s}단계가 열렸어요`); go(s); } else if (VIEW > STAGE) go(STAGE); }
+  } catch (e) {}
+}
+
+/* ----- 탭 ----- */
+function renderTabs(){
+  const nav = $('tabs'); nav.innerHTML = '';
+  for (let i = 1; i <= NSTAGE; i++) {
+    const b = document.createElement('button');
+    b.className = 'tab' + (i === VIEW ? ' on' : '') + (i > STAGE ? ' lock' : '');
+    b.innerHTML = `<span class="n">${i > STAGE ? '🔒' : i}</span>${CFG.names[i - 1]}`;
+    b.onclick = () => { if (i <= STAGE) go(i); else toast('아직 열리지 않았어요'); };
+    nav.appendChild(b);
+  }
+}
+function go(i){
+  VIEW = i; renderTabs();
+  document.querySelectorAll('.stage').forEach(s => s.classList.toggle('on', Number(s.dataset.st) === i && i <= STAGE));
+  $('waitMsg').style.display = i > STAGE ? 'block' : 'none';
+  try { LESSON.onShow(i); } catch (e) { console.error(e); }
+  window.scrollTo({ top: 0 });
+}
+
+/* ----- 입력 묶기 ----- */
+function bindAll(){
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    if (el.type === 'radio') return;
+    el.value = V(k);
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => { S.v[k] = el.value; queueSave(); if (el.dataset.live) LESSON.live && LESSON.live(k); });
+  });
+}
+function groupOf(el){ const c = el.closest('[data-lock]'); return c ? c.dataset.lock : null; }
+function checkEl(el){
+  const a = el.dataset.ans; if (a === undefined) return null;
+  const v = V(el.dataset.k);
+  if (el.tagName === 'SELECT' || isNaN(Number(a))) return String(v) === a;
+  return near(v, Number(a), Number(el.dataset.tol || 0.05));
+}
+function applyLocks(){
+  document.querySelectorAll('[data-lock]').forEach(box => {
+    const g = box.dataset.lock, L = !!S.locks[g];
+    box.querySelectorAll('[data-k]').forEach(el => {
+      el.disabled = L;
+      const host = el.closest('td') || el;
+      host.classList.remove('ok', 'no');
+      let fb = el.dataset.fbid ? $(el.dataset.fbid) : null;
+      if (fb) { fb.textContent = ''; fb.className = 'fb'; }
+      if (!L || el.dataset.ans === undefined) return;
+      if (V(el.dataset.k) === '') return;
+      const ok = checkEl(el);
+      host.classList.add(ok ? 'ok' : 'no');
+      if (fb) { fb.className = 'fb ' + (ok ? 'ok' : 'no'); fb.textContent = ok ? '✓ 맞아요' : '다시 생각해 봐요' + (el.dataset.msg ? ' · ' + el.dataset.msg : ''); }
+    });
+    box.querySelectorAll('[data-lockbtn]').forEach(b => { b.disabled = L; b.textContent = L ? (b.dataset.donetext || '잠금 완료 🔒') : (b.dataset.text || '저장하고 잠그기 🔒'); });
+  });
+  document.querySelectorAll('[data-after]').forEach(el => { el.style.display = S.locks[el.dataset.after] ? '' : 'none'; });
+  document.querySelectorAll('[data-before]').forEach(el => { el.style.display = S.locks[el.dataset.before] ? 'none' : ''; });
+  try { LESSON.afterApply(); } catch (e) { console.error(e); }
+}
+function initLocks(){
+  let n = 0;
+  document.querySelectorAll('[data-k][data-ans]').forEach(el => {
+    if (el.closest('td')) return;
+    const fb = document.createElement('span'); fb.className = 'fb'; fb.id = 'fb_' + (n++); el.dataset.fbid = fb.id;
+    const anchor = el.closest('.q') || el.parentNode;
+    anchor.appendChild(fb);
+  });
+  document.querySelectorAll('[data-lockbtn]').forEach(b => {
+    b.dataset.text = b.textContent;
+    b.onclick = () => {
+      const g = b.dataset.lockbtn, boxes = [...document.querySelectorAll(`[data-lock="${g}"]`)], box = b.closest('[data-lock]');
+      const miss = boxes.flatMap(bx => [...bx.querySelectorAll('[data-req]')]).filter(el => String(V(el.dataset.k)).trim() === '');
+      if (miss.length) { toast(b.dataset.reqmsg || '빈칸을 먼저 채워 봐요'); miss[0].focus(); return; }
+      const msg = LESSON.lockCheck[g] ? LESSON.lockCheck[g]() : '';
+      if (msg) { toast(msg); return; }
+      S.locks[g] = true;
+      boxes.forEach(bx => bx.querySelectorAll('[data-q]').forEach(el => { const t = String(V(el.dataset.k)).trim(); if (t) S.qs.push({ t, tag: '관찰 질문', src: Number(bx.closest('.stage').dataset.st), at: Date.now() }); }));
+      renderQ(); applyLocks(); try { LESSON.onLock(g); } catch (e) { console.error(e); } saveNow();
+    };
+  });
+}
+
+/* ----- 질문 ----- */
+let qTag = TAGS[0];
+function initQ(){
+  const tg = $('qtags'); tg.innerHTML = '';
+  TAGS.forEach(t => { const b = document.createElement('button'); b.className = 'chip' + (t === qTag ? ' on' : ''); b.textContent = t; b.onclick = () => { qTag = t; tg.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); }; tg.appendChild(b); });
+  $('qbtn').onclick = () => { $('qmodal').classList.add('on'); renderQ(); $('qtext').focus(); };
+  $('qclose').onclick = () => $('qmodal').classList.remove('on');
+  $('qsave').onclick = () => {
+    const t = $('qtext').value.trim(); if (!t) { toast('질문을 먼저 써 봐요'); return; }
+    S.qs.push({ t, tag: qTag, src: VIEW, at: Date.now() }); $('qtext').value = ''; renderQ(); saveNow(); toast('질문을 보냈어요');
+  };
+  renderQ();
+}
+function renderQ(){
+  if (!$('qcount')) return;
+  $('qcount').textContent = S.qs.length;
+  $('qlist').innerHTML = S.qs.length ? S.qs.slice().reverse().map(q => `<div class="qitem"><small>${esc(q.tag)} · ${q.src}단계</small>${esc(q.t)}</div>`).join('') : '<p class="read" style="color:#94a3b8">아직 없어요</p>';
+}
+
+/* ----- 사진 ----- */
+function loadPhoto(boxId, src, alt, fallback){
+  const box = $(boxId); if (!box) return;
+  const img = new Image(); img.className = 'photo'; img.alt = alt;
+  img.onload = () => { box.innerHTML = ''; box.appendChild(img); };
+  img.onerror = () => { box.innerHTML = `<div class="nophoto">${fallback}</div>`; };
+  box.innerHTML = '<div class="nophoto">사진을 불러오는 중…</div>';
+  img.src = src;
+}
+
+/* ----- 그래프 축 ----- */
+function axes(g, W, H, x0, x1, y0, y1, xl, yl, xs, ys){
+  const L = 58, R = W - 28, T = 34, B = H - 42;
+  const X = v => L + (R - L) * (v - x0) / (x1 - x0), Y = v => B - (B - T) * (v - y0) / (y1 - y0);
+  g.clearRect(0, 0, W, H); g.font = '14px Jua, sans-serif'; g.strokeStyle = '#e2e8f0'; g.fillStyle = '#475569'; g.lineWidth = 1;
+  for (let v = x0; v <= x1 + 1e-9; v += xs) { g.beginPath(); g.moveTo(X(v), T); g.lineTo(X(v), B); g.stroke(); g.fillText(String(v), X(v) - 8, B + 18); }
+  for (let v = y0; v <= y1 + 1e-9; v += ys) { g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(R, Y(v)); g.stroke(); g.fillText(String(v), 6, Y(v) + 5); }
+  g.fillStyle = '#0f172a'; g.fillText(xl, (L + R) / 2 - 40, H - 6); g.fillText(yl, 6, 18);
+  return { X, Y };
+}
+
+/* ----- 시작 ----- */
+let grpSel = '';
+function initStart(){
+  const sel = $('inCls'); sel.innerHTML = '<option value="">선택</option>' + Array.from({ length: 7 }, (_, i) => `<option value="${i + 1}">${i + 1}반</option>`).join('');
+  const gc = $('grpChips'); gc.innerHTML = '';
+  [1, 2, 3, 4].forEach(n => { const b = document.createElement('button'); b.className = 'chip'; b.textContent = n + '모둠'; b.onclick = () => { grpSel = String(n); gc.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); }; gc.appendChild(b); });
+  $('goBtn').onclick = start;
+}
+async function start(){
+  const cls = $('inCls').value, numv = $('inNum').value.trim(), name = $('inName').value.trim();
+  if (!cls || !numv || !name || !grpSel) { $('startMsg').textContent = '반, 번호, 이름, 모둠을 모두 골라 주세요'; return; }
+  $('goBtn').disabled = true; $('startMsg').textContent = '';
+  try {
+    ME = { cls, num: Number(numv), name, group: grpSel };
+    AUTH = null; S = blankState();
+    await signUpAnon();
+    store();
+    await enter();
+  } catch (e) { $('startMsg').textContent = '연결하지 못했어요. 인터넷을 확인하고 다시 눌러 주세요'; $('goBtn').disabled = false; }
+}
+async function enter(){
+  try {
+    const d = await fsGet(`${CFG.col}/${AUTH.uid}`);
+    if (d && d.fields && d.fields.data) { const saved = JSON.parse(d.fields.data.stringValue); S = Object.assign(blankState(), saved); }
+  } catch (e) {}
+  $('start').classList.remove('on'); $('main').classList.add('on'); $('qbtn').style.display = 'block';
+  $('who').textContent = `${ME.cls}반 ${ME.num}번 ${ME.name} · ${ME.group}모둠`;
+  bindAll(); initLocks(); initQ();
+  try { LESSON.init(); } catch (e) { console.error(e); }
+  applyLocks();
+  await pollCtrl(); renderTabs(); go(Math.min(STAGE, Math.max(1, Math.min(doneLevel(), NSTAGE))));
+  saveNow();
+  setInterval(pollCtrl, 5000);
+}
+function clearLocal(){ try { localStorage.removeItem(SKEY); } catch (e) {} }
+function resetLocal(){
+  if (!window.confirm('이 기기의 기록을 지우고 처음부터 시작할까요? (이미 보낸 기록은 선생님께 남아 있어요)')) return;
+  clearLocal(); location.reload();
+}
+window.addEventListener('beforeunload', () => { if (dirty) saveNow(); });
+function boot(){
+  initStart();
+  $('resetBtn').onclick = resetLocal;
+  const s = load();
+  if (s && s.AUTH && s.ME) {
+    $('resumeWho').textContent = `${s.ME.cls}반 ${s.ME.num}번 ${s.ME.name}`;
+    $('resumeBox').style.display = 'block'; $('newBox').style.display = 'none';
+    $('resumeYes').onclick = () => { AUTH = s.AUTH; ME = s.ME; enter(); };
+    $('resumeNo').onclick = () => { clearLocal(); $('resumeBox').style.display = 'none'; $('newBox').style.display = 'block'; };
+  }
+}
+
+/* ===== 단열선도 위젯 ===== */
+const KINDS = {
+  dry: { color: '#ef4444', label: '건조 단열선' },
+  dew: { color: '#3b82f6', label: '이슬점 감률선' },
+  moist: { color: '#f59e0b', label: '습윤 단열선' },
+  env: { color: '#10b981', label: '주변 기온' },
+  lcl: { color: '#7c3aed', label: '상승 응결 고도 찍기' }
+};
+function Diagram(cv, o){
+  const D = Object.assign({ Tmin: 0, Tmax: 30, zMax: 3000, Tstep: 5, zStep: 500, snapT: 0.5, snapZ: 100, bg: false, refs: [], user: [], markers: [], mode: null, pending: null, hover: null, onAdd: null, locked: false }, o || {});
+  D.cv = cv; D.g = cv.getContext('2d');
+  D.L = 62; D.R = cv.width - 16; D.T = 16; D.B = cv.height - 46;
+  D.X = t => D.L + (D.R - D.L) * (t - D.Tmin) / (D.Tmax - D.Tmin);
+  D.Y = z => D.B - (D.B - D.T) * z / D.zMax;
+  D.inv = (px, py) => [D.Tmin + (px - D.L) / (D.R - D.L) * (D.Tmax - D.Tmin), (D.B - py) / (D.B - D.T) * D.zMax];
+  D.snap = p => [Math.round(p[0] / D.snapT) * D.snapT, Math.max(0, Math.min(D.zMax, Math.round(p[1] / D.snapZ) * D.snapZ))];
+  const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / (r.width || cv.width), (e.clientY - r.top) * cv.height / (r.height || cv.height)]; };
+  const inside = ([px, py]) => px >= D.L - 6 && px <= D.R + 6 && py >= D.T - 6 && py <= D.B + 6;
+  D.click = p => {
+    if (!D.mode || D.locked) return;
+    p = D.snap(p); p[0] = Math.max(D.Tmin, Math.min(D.Tmax, p[0]));
+    let item = null;
+    if (D.mode === 'lcl') { D.user = D.user.filter(it => it.kind !== 'lcl'); item = { kind: 'lcl', pts: [p] }; D.user.push(item); }
+    else if (D.mode === 'env') {
+      let e = D.user.filter(it => it.kind === 'env').pop();
+      if (!e) { e = { kind: 'env', pts: [] }; D.user.push(e); }
+      e.pts = e.pts.filter(q => Math.abs(q[1] - p[1]) > 1); e.pts.push(p); e.pts.sort((a, b) => a[1] - b[1]); item = e;
+    } else {
+      if (!D.pending) { D.pending = p; D.draw(); return; }
+      if (D.pending[0] === p[0] && D.pending[1] === p[1]) return;
+      item = { kind: D.mode, pts: [D.pending, p] }; D.user.push(item); D.pending = null;
+    }
+    D.draw(); if (D.onAdd) D.onAdd(item);
+  };
+  cv.addEventListener('pointerdown', e => { const q = pos(e); if (inside(q)) D.click(D.inv(q[0], q[1])); });
+  cv.addEventListener('pointermove', e => { const q = pos(e); D.hover = inside(q) && D.mode && !D.locked ? D.snap(D.inv(q[0], q[1])) : null; D.draw(); });
+  cv.addEventListener('pointerleave', () => { D.hover = null; D.draw(); });
+  D.undo = () => {
+    if (D.pending) { D.pending = null; D.draw(); return; }
+    const last = D.user[D.user.length - 1]; if (!last) return;
+    if (last.kind === 'env' && last.pts.length > 1) last.pts.pop(); else D.user.pop();
+    D.draw(); if (D.onAdd) D.onAdd(null);
+  };
+  D.line = (pts, color, w, dash) => { const g = D.g; g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(D.X(p[0]), D.Y(p[1])) : g.moveTo(D.X(p[0]), D.Y(p[1]))); g.stroke(); g.setLineDash([]); };
+  D.draw = () => {
+    const g = D.g, W = cv.width, H = cv.height;
+    g.clearRect(0, 0, W, H); g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+    g.lineWidth = 1;
+    for (let t = Math.ceil(D.Tmin); t <= D.Tmax; t++) { g.strokeStyle = t % D.Tstep === 0 ? '#cbd5e1' : '#f1f5f9'; g.beginPath(); g.moveTo(D.X(t), D.T); g.lineTo(D.X(t), D.B); g.stroke(); }
+    for (let z = 0; z <= D.zMax; z += 100) { g.strokeStyle = z % D.zStep === 0 ? '#cbd5e1' : '#f1f5f9'; g.beginPath(); g.moveTo(D.L, D.Y(z)); g.lineTo(D.R, D.Y(z)); g.stroke(); }
+    g.fillStyle = '#475569'; g.font = '14px Jua, sans-serif'; g.textAlign = 'center';
+    for (let t = Math.ceil(D.Tmin / D.Tstep) * D.Tstep; t <= D.Tmax; t += D.Tstep) g.fillText(String(t), D.X(t), D.B + 18);
+    g.textAlign = 'right';
+    for (let z = 0; z <= D.zMax; z += D.zStep) g.fillText(String(z), D.L - 6, D.Y(z) + 5);
+    g.textAlign = 'center'; g.fillStyle = '#0f172a'; g.fillText('기온(°C)', (D.L + D.R) / 2, H - 6);
+    g.save(); g.translate(14, (D.T + D.B) / 2); g.rotate(-Math.PI / 2); g.fillText('높이(m)', 0, 0); g.restore(); g.textAlign = 'left';
+    g.save(); g.beginPath(); g.rect(D.L, D.T, D.R - D.L, D.B - D.T); g.clip();
+    if (D.bg) {
+      for (let t0 = D.Tmin - 0; t0 <= D.Tmax + D.zMax / 100; t0 += 5) D.line([[t0, 0], [t0 - D.zMax / 100, D.zMax]], 'rgba(239,68,68,.28)', 1.2, [6, 5]);
+      for (let t0 = D.Tmin; t0 <= D.Tmax + D.zMax / 200; t0 += 5) D.line([[t0, 0], [t0 - D.zMax / 200, D.zMax]], 'rgba(245,158,11,.32)', 1.2, [2, 4]);
+    }
+    D.refs.forEach(r => D.line(r.pts, r.color, r.width || 3, r.dash));
+    D.user.forEach(it => {
+      const c = KINDS[it.kind].color;
+      if (it.kind === 'lcl') return;
+      D.line(it.pts, c, 3.5);
+      g.fillStyle = c; it.pts.forEach(p => { g.beginPath(); g.arc(D.X(p[0]), D.Y(p[1]), it.kind === 'env' ? 5 : 4, 0, 7); g.fill(); });
+    });
+    if (D.pending) {
+      const c = KINDS[D.mode] ? KINDS[D.mode].color : '#0f172a';
+      if (D.hover) D.line([D.pending, D.hover], c, 2, [5, 4]);
+      g.fillStyle = '#fff'; g.strokeStyle = c; g.lineWidth = 3; g.beginPath(); g.arc(D.X(D.pending[0]), D.Y(D.pending[1]), 6, 0, 7); g.fill(); g.stroke();
+    }
+    g.restore();
+    D.user.filter(it => it.kind === 'lcl').forEach(it => { const p = it.pts[0]; g.fillStyle = KINDS.lcl.color; g.beginPath(); g.arc(D.X(p[0]), D.Y(p[1]), 7, 0, 7); g.fill(); g.font = '15px Jua, sans-serif'; g.fillText('상승 응결 고도', D.X(p[0]) + 10, D.Y(p[1]) - 8); });
+    D.markers.forEach(m => { g.fillStyle = m.color || '#0f172a'; g.beginPath(); g.arc(D.X(m.T), D.Y(m.z), m.r || 7, 0, 7); g.fill(); if (m.label) { g.font = '15px Jua, sans-serif'; g.fillText(m.label, D.X(m.T) + 10, D.Y(m.z) - 8); } });
+    if (D.hover) { g.fillStyle = 'rgba(15,23,42,.8)'; g.font = '14px Jua, sans-serif'; const s = `${fmt(D.hover[0])} °C, ${D.hover[1]} m`; const x = Math.min(D.X(D.hover[0]) + 10, D.R - 110); g.fillText(s, x, Math.max(D.Y(D.hover[1]) - 10, D.T + 14)); }
+  };
+  D.draw();
+  return D;
+}
+function makeTools(box, D, kinds, opts){
+  opts = opts || {};
+  box.innerHTML = '';
+  const btns = {};
+  kinds.forEach(k => {
+    const b = document.createElement('button'); b.className = 'tool'; b.type = 'button';
+    b.innerHTML = k === 'lcl' ? `📍 ${KINDS[k].label}` : `<span class="sw" style="background:${KINDS[k].color}"></span>✏️ ${KINDS[k].label}`;
+    b.onclick = () => { D.mode = D.mode === k ? null : k; D.pending = null; Object.entries(btns).forEach(([kk, bb]) => bb.classList.toggle('on', D.mode === kk)); D.draw(); };
+    btns[k] = b; box.appendChild(b);
+  });
+  const u = document.createElement('button'); u.className = 'tool'; u.type = 'button'; u.textContent = '↩ 하나 지우기'; u.onclick = () => D.undo(); box.appendChild(u);
+  if (opts.bg) { const bg = document.createElement('button'); bg.className = 'tool'; bg.type = 'button'; bg.textContent = '🗺 배경 단열선 보기'; bg.onclick = () => { D.bg = !D.bg; bg.classList.toggle('on', D.bg); D.draw(); }; box.appendChild(bg); }
+  box.setLocked = L => { D.locked = L; if (L) { D.mode = null; D.pending = null; } box.querySelectorAll('button').forEach(b => { if (b.textContent.indexOf('배경') < 0) b.disabled = L; b.classList.remove('on'); }); D.draw(); };
+  return box;
+}
+/* 판정 도우미 */
+function segFits(it, f, z0, z1, tol){
+  const [a, b] = it.pts; if (!b) return false;
+  const lo = Math.min(a[1], b[1]), hi = Math.max(a[1], b[1]);
+  if (lo > z0 + 1 || hi < z1 - 1) return false;
+  return Math.abs(a[0] - f(a[1])) <= tol && Math.abs(b[0] - f(b[1])) <= tol;
+}
+function anyFits(items, kind, f, z0, z1, tol){ return items.some(it => it.kind === kind && segFits(it, f, z0, z1, tol == null ? 0.6 : tol)); }
+function pointNear(items, T, z){ return items.some(it => it.kind === 'lcl' && Math.abs(it.pts[0][0] - T) <= 0.6 && Math.abs(it.pts[0][1] - z) <= 60); }
+function envMatches(items, data, tol){ const e = items.filter(it => it.kind === 'env').pop(); if (!e) return false; return data.every(([z, T]) => e.pts.some(p => Math.abs(p[1] - z) < 1 && Math.abs(p[0] - T) <= (tol == null ? 0.6 : tol))); }
+/* 과제 목록 */
+function TaskPanel(listEl, tasks, D, key){
+  S.segs[key] = S.segs[key] || [];
+  D.user = S.segs[key];
+  const st = t => (S.draw[t.id] = S.draw[t.id] || { ok: false, tries: 0 });
+  const P = { tasks, D };
+  P.render = () => {
+    const cur = tasks.find(t => !st(t).ok);
+    listEl.innerHTML = tasks.map(t => { const s = st(t); return `<li class="${s.ok ? 'done' : ''} ${t === cur ? 'cur' : ''}"><span class="st">${s.ok ? '✅' : '⬜'}</span><span>${t.text}${s.ok ? '' : (s.tries ? `<span class="hint">다시 해 봐요 · ${t.hint}</span>` : '')}</span></li>`; }).join('');
+  };
+  P.evaluate = (item) => {
+    S.segs[key] = D.user;
+    let any = false;
+    tasks.forEach(t => { const s = st(t); if (!s.ok && t.check(D.user)) { s.ok = true; any = true; toast('✅ ' + t.short); } });
+    if (item && !any) {
+      const curK = tasks.find(t => !st(t).ok && t.kind === item.kind);
+      if (curK && !(item.kind === 'env' && item.pts.length < (curK.minPts || 1))) st(curK).tries++;
+    }
+    P.render(); queueSave(); if (P.onChange) P.onChange();
+  };
+  P.allOk = () => tasks.every(t => st(t).ok);
+  D.onAdd = P.evaluate;
+  P.render(); D.draw();
+  return P;
+}
+
+/* ===== 4차시: 대기 안정도 ===== */
+const CASES = { a: { label: '㉠ 0.4', G: 0.4 }, b: { label: '㉡ 1.2', G: 1.2 }, c: { label: '㉢ 0.7', G: 0.7 }, d: { label: '㉣ 역전층', G: -0.5 } };
+const PTYPE = { d: { label: '불포화', G: 1, color: '#ef4444' }, m: { label: '포화', G: 0.5, color: '#f59e0b' } };
+const T_SURF = 20;
+const envT = (c, z) => T_SURF - CASES[c].G * z / 100;
+const parT = (p, z) => T_SURF - PTYPE[p].G * z / 100;
+const F = { c: 'a', p: 'd', z: 0, v: 0, run: false, frames: 0, msg: '' };
+let DD2;
+
+function triedKey(c, p){ return 'tried.' + c + '.' + p; }
+function triedLeft(){ const left = []; Object.keys(CASES).forEach(c => Object.keys(PTYPE).forEach(p => { if (!S.v[triedKey(c, p)]) left.push(CASES[c].label.split(' ')[0] + ' ' + PTYPE[p].label); })); return left; }
+function drawFloat(){
+  const cv = $('f2'), g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const top = 20, bot = H - 30, zMax = 2000, X0 = 60, X1 = W - 110;
+  const Y = z => bot - (bot - top) * z / zMax;
+  g.clearRect(0, 0, W, H);
+  // 주변 기온을 색 띠로
+  for (let z = 0; z < zMax; z += 50) {
+    const t = envT(F.c, z + 25), w = Math.max(0, Math.min(1, (t - 5) / 25));
+    g.fillStyle = `rgb(${Math.round(150 + 105 * w)},${Math.round(200 + 20 * (1 - Math.abs(w - .5)))},${Math.round(255 - 120 * w)})`;
+    g.fillRect(X0, Y(z + 50), X1 - X0, Y(z) - Y(z + 50) + 1);
+  }
+  g.font = '14px Jua, sans-serif'; g.fillStyle = '#334155'; g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 1;
+  for (let z = 0; z <= zMax; z += 500) {
+    g.beginPath(); g.moveTo(X0, Y(z)); g.lineTo(X1, Y(z)); g.stroke();
+    g.fillStyle = '#334155'; g.fillText(z + ' m', 6, Y(z) + 5);
+    g.fillStyle = '#047857'; g.fillText('주변 ' + fmt(envT(F.c, z)) + ' °C', X1 + 8, Y(z) + 5);
+  }
+  g.fillStyle = '#4ade80'; g.fillRect(X0, bot, X1 - X0, 6);
+  // 공기 덩어리
+  const tp = parT(F.p, F.z), te = envT(F.c, F.z), dT = tp - te;
+  const px = (X0 + X1) / 2, py = Y(F.z) - 20, r = 20;
+  g.fillStyle = Math.abs(dT) < 0.05 ? 'rgba(148,163,184,.95)' : dT > 0 ? 'rgba(244,63,94,.92)' : 'rgba(59,130,246,.92)';
+  g.beginPath(); g.arc(px, py, r, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 3; g.stroke();
+  g.fillStyle = '#0f172a'; g.font = '16px Jua, sans-serif'; g.fillText(fmt(tp) + ' °C', px + r + 8, py + 6);
+  if (F.z > 0 && Math.abs(dT) >= 0.05) {
+    const up = dT > 0, len = Math.min(70, 14 + Math.abs(dT) * 14);
+    g.strokeStyle = up ? '#be123c' : '#1d4ed8'; g.fillStyle = g.strokeStyle; g.lineWidth = 4;
+    const ay = up ? py - r - 4 : py + r + 4, ey = up ? ay - len : ay + len;
+    g.beginPath(); g.moveTo(px - 46, ay); g.lineTo(px - 46, ey); g.stroke();
+    g.beginPath(); g.moveTo(px - 46, ey + (up ? -8 : 8)); g.lineTo(px - 54, ey); g.lineTo(px - 38, ey); g.fill();
+  }
+  if (!F.run && F.z > 0) { g.font = '24px sans-serif'; g.fillText('✋', px - 12, py - r - 6); }
+  if (F.msg) { g.fillStyle = 'rgba(15,23,42,.82)'; g.fillRect(X0 + 10, top + 6, X1 - X0 - 20, 34); g.fillStyle = '#fff'; g.font = '17px Jua, sans-serif'; g.textAlign = 'center'; g.fillText(F.msg, (X0 + X1) / 2, top + 29); g.textAlign = 'left'; }
+  $('ro2').innerHTML = `<div><span>높이</span><b>${Math.round(F.z)} m</b></div><div><span>공기 덩어리 기온</span><b>${fmt(tp)} °C</b></div><div><span>주변 기온</span><b>${fmt(te)} °C</b></div><div class="${dT > 0.05 ? 'warm' : dT < -0.05 ? 'cool' : ''}"><span>공기 덩어리는 주변보다</span><b style="font-size:18px">${Math.abs(dT) < 0.05 ? '같아요' : dT > 0 ? fmt(dT) + ' °C 따뜻' : fmt(-dT) + ' °C 차가움'}</b></div>`;
+  const left = triedLeft(); $('tried2').textContent = left.length ? `아직 안 해 본 것 ${left.length}가지` : '여덟 가지를 모두 해 봤어요 ✓';
+  // 단열선도
+  if (DD2) {
+    DD2.refs = [{ pts: [[envT(F.c, 0), 0], [envT(F.c, 2000), 2000]], color: '#10b981', width: 4 }];
+    Object.keys(PTYPE).forEach(p => DD2.refs.push({ pts: [[parT(p, 0), 0], [parT(p, 2000), 2000]], color: PTYPE[p].color, width: p === F.p ? 3.5 : 1.5, dash: p === F.p ? null : [6, 5] }));
+    DD2.markers = [{ T: te, z: F.z, color: '#10b981', r: 6 }, { T: tp, z: F.z, color: PTYPE[F.p].color, r: 7 }];
+    DD2.draw();
+  }
+}
+function stepFloat(){
+  if (!F.run) return;
+  const dT = parT(F.p, F.z) - envT(F.c, F.z);
+  F.v += 0.8 * dT - 0.06 * F.v; F.z += F.v; F.frames++;
+  if (F.z >= 2000) { F.z = 2000; F.run = false; F.msg = '⬆ 주변보다 따뜻해서 계속 올라갔어요'; }
+  else if (F.z <= 0) { F.z = 0; F.v = -F.v * 0.3; if (Math.abs(F.v) < 0.6) { F.run = false; F.v = 0; F.msg = '⬇ 주변보다 차가워서 원래 자리로 돌아왔어요'; } }
+  else if (F.z < 4 && Math.abs(F.v) < 0.3) { F.z = 0; F.v = 0; F.run = false; F.msg = '⬇ 주변보다 차가워서 원래 자리로 돌아왔어요'; }
+  else if (F.frames > 1500) { F.run = false; }
+  $('r2').value = Math.round(F.z / 50) * 50;
+  drawFloat();
+}
+function initFloat(){
+  const cs = $('cases'), pt = $('ptype');
+  const mk = (box, obj, key) => { box.innerHTML = ''; Object.entries(obj).forEach(([k, o]) => { const b = document.createElement('button'); b.className = 'cond' + (F[key] === k ? ' on' : ''); b.textContent = key === 'c' ? `${o.label}${k === 'd' ? '' : ' °C/100 m'}` : o.label + ' 공기 덩어리'; b.onclick = () => { F[key] = k; F.run = false; F.z = 0; F.v = 0; F.msg = ''; $('r2').value = 0; box.querySelectorAll('.cond').forEach(x => x.classList.toggle('on', x === b)); drawFloat(); }; box.appendChild(b); }); };
+  mk(cs, CASES, 'c'); mk(pt, PTYPE, 'p');
+  $('r2').addEventListener('input', () => { if (F.run) return; F.z = Number($('r2').value); F.v = 0; F.msg = ''; drawFloat(); });
+  $('drop2').onclick = () => {
+    if (F.z < 100) { toast('막대로 공기 덩어리를 먼저 들어 올려 봐요'); return; }
+    if (F.z >= 300 && !S.v[triedKey(F.c, F.p)]) { S.v[triedKey(F.c, F.p)] = '1'; queueSave(); }
+    F.run = true; F.v = 0; F.frames = 0; F.msg = '';
+  };
+  $('back2').onclick = () => { F.run = false; F.z = 0; F.v = 0; F.msg = ''; $('r2').value = 0; drawFloat(); };
+  DD2 = Diagram($('dd2'), { Tmin: 0, Tmax: 30, zMax: 2000 });
+  drawFloat();
+  const loop = () => { if ($('f2').offsetParent) stepFloat(); requestAnimationFrame(loop); };
+  if (window.requestAnimationFrame) requestAnimationFrame(loop);
+}
+
+/* 단열선도로 판단하기 */
+const SOUND = {
+  1: [[0, 20], [1000, 16], [2000, 12], [3000, 8]],
+  2: [[0, 30], [1000, 18], [2000, 6], [3000, -6]],
+  3: [[0, 25], [1000, 18], [2000, 11], [3000, 4]]
+};
+const TASKS4 = {
+  1: [
+    { id: 's1_env', kind: 'env', minPts: 4, short: '자료 1 주변 기온 완성', text: '자료 1의 <b>주변 기온</b>을 높이마다 찍기 (0, 1000, 2000, 3000 m)', hint: '표의 기온을 각 높이에 하나씩 찍어요.', check: u => envMatches(u, SOUND[1].map(([z, t]) => [z, t])) },
+    { id: 's1_dry', kind: 'dry', short: '건조 단열선 완성', text: '지표(20 °C)에서 시작하는 <b>건조 단열선</b> (0 → 3000 m)', hint: '100 m마다 1 °C씩, 3000 m에서는 30 °C 내려가요.', check: u => anyFits(u, 'dry', z => 20 - z / 100, 0, 3000) },
+    { id: 's1_moist', kind: 'moist', short: '습윤 단열선 완성', text: '지표(20 °C)에서 시작하는 <b>습윤 단열선</b> (0 → 3000 m)', hint: '100 m마다 0.5 °C씩, 3000 m에서는 15 °C 내려가요.', check: u => anyFits(u, 'moist', z => 20 - 0.5 * z / 100, 0, 3000) }
+  ],
+  2: [{ id: 's2_env', kind: 'env', minPts: 4, short: '자료 2 주변 기온 완성', text: '자료 2의 <b>주변 기온</b>을 높이마다 찍기', hint: '표의 기온을 각 높이에 하나씩 찍어요.', check: u => envMatches(u, SOUND[2]) }],
+  3: [{ id: 's3_env', kind: 'env', minPts: 4, short: '자료 3 주변 기온 완성', text: '자료 3의 <b>주변 기온</b>을 높이마다 찍기', hint: '표의 기온을 각 높이에 하나씩 찍어요.', check: u => envMatches(u, SOUND[3]) }]
+};
+const ALL4 = [].concat(TASKS4[1], TASKS4[2], TASKS4[3]);
+let D4, P4, tools4, snd = 1;
+function sndDone(n){ return TASKS4[n].every(t => S.draw[t.id] && S.draw[t.id].ok); }
+function setSound(n){
+  snd = n;
+  $('snd').querySelectorAll('.cond').forEach((b, i) => { b.classList.toggle('on', i + 1 === n); b.textContent = `자료 ${i + 1}${sndDone(i + 1) ? ' ✓' : ''}`; });
+  $('sndtbl').innerHTML = '<tr><th>높이(m)</th>' + SOUND[n].map(([z]) => `<th>${z}</th>`).join('') + '</tr><tr><td>기온(°C)</td>' + SOUND[n].map(([, t]) => `<td>${t}</td>`).join('') + '</tr>';
+  D4.mode = null; D4.pending = null;
+  const kinds = n === 1 ? ['env', 'dry', 'moist'] : ['env'];
+  tools4 = makeTools($('tools4'), D4, kinds, { bg: false });
+  P4 = TaskPanel($('tasks4'), TASKS4[n], D4, 'd4_' + n);
+  P4.onChange = () => { refs4(); setSoundLabels(); };
+  refs4(); tools4.setLocked(!!S.locks.g4);
+}
+function setSoundLabels(){ $('snd').querySelectorAll('.cond').forEach((b, i) => { b.textContent = `자료 ${i + 1}${sndDone(i + 1) ? ' ✓' : ''}`; }); }
+function refs4(){
+  const t0 = SOUND[snd][0][1];
+  D4.refs = snd === 1 ? [] : [{ pts: [[t0, 0], [t0 - 30, 3000]], color: 'rgba(239,68,68,.55)', width: 2.5, dash: [8, 6] }, { pts: [[t0, 0], [t0 - 15, 3000]], color: 'rgba(245,158,11,.6)', width: 2.5, dash: [8, 6] }];
+  D4.draw();
+}
+
+LESSON.init = () => {
+  loadPhoto('ph1a', 'stratus.jpg', '넓게 깔린 층운형 구름', '☁️ 선생님 화면의 사진 1을 보세요');
+  loadPhoto('ph1b', 'cumulonimbus.jpg', '높이 솟은 적운형 구름', '⛈ 선생님 화면의 사진 2를 보세요');
+  loadPhoto('ph5a', 'stratus.jpg', '넓게 깔린 층운형 구름', '☁️ 사진 1');
+  loadPhoto('ph5b', 'cumulonimbus.jpg', '높이 솟은 적운형 구름', '⛈ 사진 2');
+  initFloat();
+  D4 = Diagram($('d4'), { Tmin: -10, Tmax: 30, zMax: 3000 });
+  const sb = $('snd'); sb.innerHTML = '';
+  [1, 2, 3].forEach(n => { const b = document.createElement('button'); b.className = 'cond'; b.onclick = () => setSound(n); sb.appendChild(b); });
+  setSound(1);
+};
+LESSON.onShow = i => { if (i === 2) drawFloat(); if (i === 4) D4.draw(); if (i === 5) showFirst2(); };
+function showFirst2(){ const el = $('first2'); if (el) el.innerHTML = `<b>${esc(V('s1.pred') || '-')}</b><br>${esc(V('s1.why') || '(아직 쓰지 않았어요)')}`; }
+LESSON.lockCheck.g2 = () => { const left = triedLeft(); return left.length ? `아직 안 해 본 것: ${left.join(', ')}` : ''; };
+LESSON.lockCheck.g4 = () => { const n = [1, 2, 3].find(k => !sndDone(k)); return n ? `자료 ${n}의 할 일을 먼저 마쳐 봐요` : ''; };
+LESSON.afterApply = () => { if (tools4) tools4.setLocked(!!S.locks.g4); showFirst2(); };
+LESSON.autoDraw = i => {
+  if (i === 2) { Object.keys(CASES).forEach(c => Object.keys(PTYPE).forEach(p => { S.v[triedKey(c, p)] = '1'; })); drawFloat(); }
+  if (i === 4) {
+    [1, 2, 3].forEach(n => {
+      setSound(n);
+      const items = [{ kind: 'env', pts: SOUND[n].map(([z, t]) => [t, z]) }];
+      if (n === 1) items.push({ kind: 'dry', pts: [[20, 0], [-10, 3000]] }, { kind: 'moist', pts: [[20, 0], [5, 3000]] });
+      items.forEach(it => { D4.user.push(it); P4.evaluate(it); });
+    });
+    setSound(1);
+  }
+};
+
+
+boot();
+</script>
+</body>
+</html>
